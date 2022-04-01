@@ -1,51 +1,92 @@
-const { response } = require('express');
-const { validationResult } = require('express-validator');
+const { response } = require("express");
+const bcrypt = require("bcryptjs");
+const Usuario = require("../models/Usuario");
 
-const crearUsuario = (req, res = response) => {
+const crearUsuario = async (req, res = response) => {
 
-    const { name, email, password } = req.body;
+  const { email, password } = req.body;
 
-    // manejo de errores
-    const errors = validationResult( req );
-    if ( !errors.isEmpty() ) {
+  try {
+    let usuario = await Usuario.findOne({ email });
+    
+    if ( usuario ) {
         return res.status(400).json({
             ok: false,
-            errors: errors.mapped()
-        })
+            msg: "Un usuario ya existe con ese correo",
+        });
     }
 
-    res.json({
-        ok: true,
-        msg: 'register',
-        name,
-        email,
-        password
+    usuario = new Usuario(req.body);
+
+    //Encriptar contarseña
+    const salt = await bcrypt.genSalt();
+    usuario.password = bcrypt.hashSync( password, salt );  
+
+    await usuario.save();
+
+    res.status(201).json({
+      ok: true,
+      uid: usuario.id,
+      name: usuario.name,
     });
+
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({
+            ok: false,
+            msg: "Por favor hable con el administrador",
+      })
+  }
 };
 
-const loginUsuario = (req, res = response ) => {
+const loginUsuario = async (req, res = response) => {
+  const { email, password } = req.body;
 
-    const { email, password } = req.body;
+  try {
+    const usuario = await Usuario.findOne({ email });
 
-    res.json({
-        ok: true,
-        msg: 'login',
-        email,
-        password
+    if ( !usuario ) {
+        return res.status(400).json({
+            ok: false,
+            msg: "El usuario no existe con ese email",
+
+        })}
+
+    // Confirmar los passwords
+    const validPassword = bcrypt.compareSync( password, usuario.password );
+
+    if ( !validPassword ) {
+        return res.status(400).json({
+            ok: false,
+            msg: "Contraseña incorrecta",
+        });
+    }
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+          ok: false,
+          msg: "Por favor hable con el administrador",
     })
+  }
+
+  res.status(201).json({
+    ok: true,
+    msg: "login",
+    email,
+    password,
+  });
 };
 
-const revalidarToken = (req, res = response ) => {
- 
-    res.json({ 
-        ok: true,
-        msg: 'renew'
-    })
+const revalidarToken = (req, res = response) => {
+  res.json({
+    ok: true,
+    msg: "renew",
+  });
 };
-
 
 module.exports = {
-    crearUsuario,
-    loginUsuario,
-    revalidarToken
-}
+  crearUsuario,
+  loginUsuario,
+  revalidarToken,
+};

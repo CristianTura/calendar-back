@@ -1,0 +1,196 @@
+const paddockManagers = [
+    {id: 1, taxNumber: '132254524', name: 'JUAN TAPIA BURGOS'},
+    {id: 2, taxNumber: '143618668', name: 'EFRAIN SOTO VERA'},
+    {id: 3, taxNumber: '78903228', name: 'CARLOS PEREZ GONZALEZ'},
+    {id: 4, taxNumber: '176812737', name: 'ANDRES VIÑALES CIENFUEGOS'},
+    {id: 5, taxNumber: '216352696', name: 'OSCARR PEREZ ZUÑIGA'},
+    {id: 6, taxNumber: '78684747', name: 'JOAQUIN ANDRADE SANDOVAL'},
+]
+
+const paddockType = [
+    {id: 1, name : 'PALTOS'},
+    {id: 2, name : 'AVELLANOS'},
+    {id: 3, name : 'CEREZAS'},
+    {id: 4, name : 'NOGALES'},
+]
+
+const paddocks = [
+    {paddockManagerId: 6, farmId: 1, paddockTypeId: 1, harvestYear: 2019, area: 1200},
+    {paddockManagerId: 1, farmId: 3, paddockTypeId: 4, harvestYear: 2019, area: 500},
+    {paddockManagerId: 5, farmId: 3, paddockTypeId: 2, harvestYear: 2020, area: 20000},
+    {paddockManagerId: 2, farmId: 2, paddockTypeId: 3, harvestYear: 2021, area: 8401},
+    {paddockManagerId: 3, farmId: 1, paddockTypeId: 1, harvestYear: 2020, area: 2877},
+    {paddockManagerId: 5, farmId: 2, paddockTypeId: 2, harvestYear: 2017, area: 15902},
+    {paddockManagerId: 3, farmId: 3, paddockTypeId: 3, harvestYear: 2018, area: 1736},
+    {paddockManagerId: 2, farmId: 3, paddockTypeId: 3, harvestYear: 2020, area: 2965},
+    {paddockManagerId: 4, farmId: 3, paddockTypeId: 4, harvestYear: 2018, area: 1651},
+]
+
+const farms = [
+    {id: 1, name: 'AGRICOLA SANTA ANA'},
+    {id: 2, name: 'VINA SANTA PAULA'},
+    {id: 3, name: 'FORESTAL Y AGRICOLA LO ENCIMA'}
+]
+
+
+// 2) Arrreglo con los nombres de cada tipo de cultivo, ordenados decrecientemente por la suma TOTAL
+//    de la cantidad de hectareas plantas de cada uno de ellos.
+
+function sortPaddockTypeByTotalArea() {
+    
+        const paddocksTypeArea = paddockType.map( type => {
+            paddocks.forEach( paddock => {
+                if ( type.id === paddock.paddockTypeId ) {
+                    type.totalArea = type.totalArea ? type.totalArea + paddock.area : paddock.area;
+                }
+            })       
+            return type;
+        });
+    
+        const paddocksTypeAreaSort = paddocksTypeArea.sort((a, b) => b.totalArea - a.totalArea);
+    
+        return paddocksTypeAreaSort.map( type => type.name );
+}
+
+// console.log( sortPaddockTypeByTotalArea() );
+
+// 3) arreglo con los nombres de los administadores, ordenados decrecientementte por la suma total
+// de hectareas que administran
+
+function sortFarmManagersByAdminArea (managers = paddockManagers, paddocksInfo = paddocks) {
+
+    const paddocksManagerArea = managers.map( manager => {
+        paddocksInfo.forEach( paddock => {
+            if ( manager.id === paddock.paddockManagerId ) {
+                manager.totalArea = manager.totalArea ? manager.totalArea + paddock.area : paddock.area;
+            }
+        })       
+        return manager;
+    });
+
+    const paddocksManagerAreaSort = paddocksManagerArea.sort((a, b) => b.totalArea - a.totalArea);
+
+    // return paddocksManagerAreaSort.map( manager => manager.name );
+    return paddocksManagerAreaSort
+}
+
+// console.log( sortFarmManagersByAdminArea() );
+
+
+// 7) Objeto en el cual las claves sean el nombre del admnistrador y el valor un arreglo
+// con los nombres de loscampos que admiinistra, ordenados alfabeticamente
+
+// function farmManagerPaddocks () {
+
+//     let farmsAdmin =  {}
+
+//     const paddocksFarm = paddocks.map( paddock => {
+//         farms.forEach( farm => {
+//             if ( farm.id === paddock.farmId ) {
+//                 paddock.farmName = farm.name;
+//             }
+//         })       
+//         return paddock;
+//     });
+
+//     const paddocksManagerFarm = paddockManagers.map( manager => {
+//         paddocksFarm.forEach( paddock => {
+//             if ( paddock.paddockManagerId === manager.id ) {
+//                 manager.farmNames = manager.farmNames 
+//                                     ? [...manager.farmNames, paddock.farmName] 
+//                                     : [paddock.farmName];
+//             }
+//         })       
+//         return manager;
+//     });
+
+    
+//     paddocksManagerFarm.forEach( item => {
+//         farmsAdmin = {
+//             ...farmsAdmin,
+//             [item.name]: item.farmNames ? [...item.farmNames].sort() : []
+//         }
+//     
+//     });
+
+//     for (const key in farmsAdmin) {
+//         farmsAdmin[key] = farmsAdmin[key].filter((valor, indice) => {
+//             return farmsAdmin[key].indexOf(valor) === indice;
+//           }); 
+//     }
+
+    
+//     return farmsAdmin;
+
+// }
+
+// console.log( farmManagerPaddocks() );
+// farmManagerPaddocks()
+
+
+// 8) Objeto en que las claves sean el tipo de cultivo concatenado con su año de plantacion  
+// (la concatenacion ttiene un separador de guion '-') y el valor otro objeto en el cual la clave 
+// sea el id del administrador y el valor el nombre del administrador
+
+// function paddocksManagers () {
+
+//     let resultObject =  {}
+
+//     const paddocksFarmType = paddocks.map( paddock => {
+//         paddockType.forEach( type => {
+//             if ( type.id === paddock.paddockTypeId ) {
+//                 paddock.paddockType = type.name;
+//             }
+//         })       
+//         return paddock;
+//     });
+
+//     const paddocksTypeManager = paddocksFarmType.map( paddock => {
+//         paddockManagers.forEach( manager => {
+//             if ( manager.id === paddock.paddockManagerId ) {
+//                 paddock.nameManager = manager.name;
+//             }
+//         })       
+//         return paddock;
+//     });
+
+//     paddocksTypeManager.forEach( item => {
+//         resultObject = {
+//                 ...resultObject,
+//                 [`${item.paddockType}-${item.harvestYear}`]: {
+//                     [item.paddockManagerId]: item.nameManager
+//                 }
+//             }
+//         });
+
+//     return resultObject;
+
+// }
+
+// console.log( paddocksManagers() );
+
+
+// 9) Agregar nuevo administrador con datos ficticios a 'paddickMangers' y agregar un nuevo
+// cuartel de tipo NOGALES con 900mts2, año 2017 de AGRICOLA SANTA ANA, administrado
+//  por este nuevo admiinistrador
+
+function newManagerRanking () {
+
+    const newAdmin = {id: 7, taxNumber: '123456789', name: 'Cristian :)'} ;
+
+    const paddockManagersPlus = [ 
+        ...paddockManagers,
+        newAdmin
+    ];
+    const paddocksPlus = [ 
+        ...paddocks,
+        {paddockManagerId: 7, farmId: 1, paddockTypeId: 4, harvestYear: 2017, area: 900} 
+    ];
+
+    const sortManagerByArea = sortFarmManagersByAdminArea(paddockManagersPlus, paddocksPlus);
+
+    return sortManagerByArea.indexOf( newAdmin.name) + 1 ;
+
+}
+
+// console.log( newManagerRanking() );
